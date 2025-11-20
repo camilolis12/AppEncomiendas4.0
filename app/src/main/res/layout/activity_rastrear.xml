@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="32dp"
+    android:background="@color/white">
+
+    <TextView
+        android:text="Rastrear Paquete"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:textColor="@color/purple_500"
+        android:layout_marginBottom="24dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <!-- Campo de búsqueda -->
+    <EditText
+        android:id="@+id/edtRadicado"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Ingrese número de radicado"
+        android:inputType="text"
+        android:padding="10dp"
+        android:background="@android:drawable/edit_text" />
+
+    <!-- Botón buscar -->
+    <Button
+        android:id="@+id/btnBuscar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Buscar paquete"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="@color/purple_500"
+        android:textColor="@android:color/white"
+        android:background="@drawable/rounded_button" />
+
+    <!-- Botón ver en mapa -->
+    <Button
+        android:id="@+id/btnVerMapa"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Ver en mapa"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="@color/purple_500"
+        android:textColor="@android:color/white"
+        android:background="@drawable/rounded_button" />
+
+    <!-- Resultado -->
+    <TextView
+        android:id="@+id/txtResultado"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Resultados aparecerán aquí"
+        android:layout_marginTop="20dp"
+        android:textSize="16sp"
+        android:padding="8dp"
+        android:background="#EFEFEF"
+        android:textColor="#000000" />
+
+</LinearLayout>

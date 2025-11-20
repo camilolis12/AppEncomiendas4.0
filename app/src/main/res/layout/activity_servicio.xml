@@ -1,0 +1,59 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:gravity="center_horizontal"
+    android:background="@color/white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:padding="32dp">
+
+        <TextView
+            android:id="@+id/txtServicioTitulo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Servicio al Cliente"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="@color/purple_500"
+            android:layout_marginBottom="24dp"/>
+
+        <EditText
+            android:id="@+id/inputRadicado"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Número de radicado"
+            android:inputType="number"
+            android:padding="12dp"
+            android:background="@android:drawable/edit_text"
+            android:layout_marginBottom="15dp"/>
+
+        <EditText
+            android:id="@+id/inputMensaje"
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
+            android:hint="Escribe tu consulta"
+            android:gravity="top"
+            android:inputType="textMultiLine"
+            android:padding="12dp"
+            android:background="@android:drawable/edit_text"
+            android:layout_marginBottom="20dp"/>
+
+        <Button
+            android:id="@+id/btnEnviarSoporte"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Enviar a Servicio al Cliente"
+            android:backgroundTint="@color/purple_500"
+            android:textColor="@android:color/white"
+            android:background="@drawable/rounded_button"
+            android:padding="14dp"/>
+
+    </LinearLayout>
+
+</LinearLayout>

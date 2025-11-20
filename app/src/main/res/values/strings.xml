@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">AppEncomiendas</string>
+    <string-array name="tamano_paquete">
+        <item>pequeño</item>
+        <item>mediano</item>
+        <item>grande</item>
+    </string-array>
+    <string-array name="roles_array">
+        <item>Ciudadano</item>
+        <item>Planeador</item>
+        <item>Decisor</item>
+    </string-array>
+
+</resources>
+

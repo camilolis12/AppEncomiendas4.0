@@ -1,0 +1,12 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/action_caracteristicas"
+        android:title="Características"
+        android:icon="@android:drawable/ic_menu_info_details"
+        android:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/action_notificacion"
+        android:title="Notificar"
+        android:icon="@android:drawable/ic_menu_send"
+        android:showAsAction="ifRoom"/>
+</menu>

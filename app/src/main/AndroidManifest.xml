@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.SEND_SMS"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
+    <application
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.AppEncomiendas">
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyCJ0rPUwkfNj39GGMi5yzj03yNsWl43Yn0"/>
+
+        <activity
+            android:name=".MapaActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".CalificarActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".HistorialActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".SeccionActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".RegistroActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ModificarActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ServicioActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".RastrearActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".FormularioActivity"
+            android:exported="true" />
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".DetallePaqueteActivity"
+            android:exported="false" />
+
+        <activity 
+            android:name=".EditarActivity"
+            android:exported="false" />
+
+        <activity 
+            android:name=".VerPerfilActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".FavoritesActivity"
+            android:exported="false" />
+
+        <activity 
+            android:name=".PerfilMenuActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".EstadisticasActivity"
+            android:exported="false" />
+        <activity
+            android:name=".AdminEstadisticasActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".PagoTarjetaActivity"
+            android:exported="false" />
+        <activity
+            android:name=".PagoTransferenciaActivity"
+            android:exported="false" />
+        <activity
+            android:name=".PagoEfectivoActivity"
+            android:exported="false" />
+
+        <!-- Servicio de tracking en foreground -->
+        <service
+            android:name=".LocationForegroundService"
+            android:exported="false" />
+
+        <!-- Actividad que planea rutas y lanza Google Maps -->
+        <activity
+            android:name=".RoutePlannerActivity"
+            android:exported="false" />
+
+    </application>
+
+</manifest>
