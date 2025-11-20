@@ -19,6 +19,9 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import android.net.Uri;
 
+import com.google.android.gms.location.CurrentLocationRequest;
+import com.google.android.gms.location.Priority;
+
 public class MainActivity extends AppCompatActivity {
 
     TextInputEditText edtUsuario, edtPassword;
@@ -124,22 +127,20 @@ public class MainActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 101);
             return;
         }
-        fusedClient.getLastLocation().addOnSuccessListener(location -> {
+
+        CurrentLocationRequest req = new CurrentLocationRequest.Builder()
+                .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
+                .build();
+
+        fusedClient.getCurrentLocation(req, null).addOnSuccessListener(location -> {
             if (location != null) {
                 double lat = location.getLatitude();
                 double lng = location.getLongitude();
-                Toast.makeText(this, "Ubicación actual:\nLat: " + lat + "\nLng: " + lng, Toast.LENGTH_LONG).show();
-                // Abrir Google Maps en la ubicación actual
-                String uri = "geo:" + lat + "," + lng + "?q=" + lat + "," + lng + "(Mi ubicación)";
-                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
-                intent.setPackage("com.google.android.apps.maps");
-                try {
-                    startActivity(intent);
-                } catch (Exception e) {
-                    // Si falla, abrir en navegador
-                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
-                    startActivity(browserIntent);
-                }
+                Intent intent = new Intent(MainActivity.this, MapaActivity.class);
+                intent.putExtra("latitud", lat);
+                intent.putExtra("longitud", lng);
+                intent.putExtra("radicado", "Mi ubicación");
+                startActivity(intent);
             } else {
                 Toast.makeText(this, "No se pudo obtener la ubicación", Toast.LENGTH_SHORT).show();
             }

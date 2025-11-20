@@ -47,6 +47,17 @@
         android:textColor="@android:color/white"
         android:background="@drawable/rounded_button" />
 
+    <!-- Botón reportar ubicación actual -->
+    <Button
+        android:id="@+id/btnReportarUbicacion"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Reportar ubicación actual"
+        android:layout_marginTop="12dp"
+        android:backgroundTint="@color/purple_500"
+        android:textColor="@android:color/white"
+        android:background="@drawable/rounded_button" />
+
     <!-- Resultado -->
     <TextView
         android:id="@+id/txtResultado"
