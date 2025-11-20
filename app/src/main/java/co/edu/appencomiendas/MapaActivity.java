@@ -7,12 +7,18 @@ import androidx.fragment.app.FragmentActivity;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.*;
 import com.google.android.gms.maps.model.*;
+import android.graphics.Color;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MapaActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -22,6 +28,7 @@ public class MapaActivity extends FragmentActivity implements OnMapReadyCallback
     private TextView txtRadicadoMapa;
     private double latitud, longitud;
     private String radicado;
+    private List<LatLng> trackingPoints = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +49,10 @@ public class MapaActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
         if (radicado != null && !radicado.isEmpty()) {
+            cargarTrackingPoints(radicado);
+        }
+
+        if (radicado != null && !radicado.isEmpty()) {
             txtRadicadoMapa.setText("Paquete " + radicado);
         }
 
@@ -59,10 +70,25 @@ public class MapaActivity extends FragmentActivity implements OnMapReadyCallback
         this.googleMap = map;
 
         LatLng punto = new LatLng(latitud, longitud);
-        MarkerOptions markerOptions = new MarkerOptions()
-                .position(punto)
-                .title(radicado != null ? ("Paquete " + radicado) : "Paquete");
-        googleMap.addMarker(markerOptions);
+
+        if (!trackingPoints.isEmpty()) {
+            googleMap.addPolyline(new PolylineOptions()
+                    .addAll(trackingPoints)
+                    .color(Color.BLUE)
+                    .width(8f));
+
+            LatLng inicio = trackingPoints.get(0);
+            LatLng ultimo = trackingPoints.get(trackingPoints.size() - 1);
+            googleMap.addMarker(new MarkerOptions().position(inicio).title("Inicio recorrido"));
+            googleMap.addMarker(new MarkerOptions().position(ultimo).title("Último reporte"));
+            punto = ultimo;
+        } else {
+            MarkerOptions markerOptions = new MarkerOptions()
+                    .position(punto)
+                    .title(radicado != null ? ("Paquete " + radicado) : "Paquete");
+            googleMap.addMarker(markerOptions);
+            Toast.makeText(this, "Sin puntos de tracking, se muestra la última ubicación guardada", Toast.LENGTH_SHORT).show();
+        }
 
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(punto, 15f));
 
@@ -93,5 +119,19 @@ public class MapaActivity extends FragmentActivity implements OnMapReadyCallback
         } else {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
+    }
+
+    private void cargarTrackingPoints(String radicado) {
+        DBHelper helper = new DBHelper(this);
+        SQLiteDatabase db = helper.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT latitud, longitud FROM tracking_points WHERE radicado = ? ORDER BY id ASC", new String[]{radicado});
+        trackingPoints.clear();
+        while (cursor.moveToNext()) {
+            if (!cursor.isNull(0) && !cursor.isNull(1)) {
+                trackingPoints.add(new LatLng(cursor.getDouble(0), cursor.getDouble(1)));
+            }
+        }
+        cursor.close();
+        db.close();
     }
 }

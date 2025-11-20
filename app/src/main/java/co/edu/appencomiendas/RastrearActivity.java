@@ -3,32 +3,45 @@ package co.edu.appencomiendas;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import android.Manifest;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
+import com.google.android.gms.location.CurrentLocationRequest;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.Priority;
 
 public class RastrearActivity extends AppCompatActivity {
 
     EditText edtRadicado;
-    Button btnBuscar, btnVerMapa;
+    Button btnBuscar, btnVerMapa, btnReportarUbicacion;
     TextView txtResultado;
 
     private static final String CHANNEL_ID = "rastreo_paquetes";
+    private static final int REQ_LOCATION = 202;
 
     // Guardamos lat/lng consultados para pasarlos al mapa
     double latitud = 0, longitud = 0;
     String radicadoEncontrado = "";
+
+    private FusedLocationProviderClient fusedClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,9 +51,12 @@ public class RastrearActivity extends AppCompatActivity {
         edtRadicado = findViewById(R.id.edtRadicado);
         btnBuscar = findViewById(R.id.btnBuscar);
         btnVerMapa = findViewById(R.id.btnVerMapa);
+        btnReportarUbicacion = findViewById(R.id.btnReportarUbicacion);
         txtResultado = findViewById(R.id.txtResultado);
 
         crearCanalNotificaciones();
+
+        fusedClient = LocationServices.getFusedLocationProviderClient(this);
 
         btnBuscar.setOnClickListener(v -> buscarPaquete());
 
@@ -48,24 +64,19 @@ public class RastrearActivity extends AppCompatActivity {
             if (radicadoEncontrado.isEmpty()) {
                 Toast.makeText(this, "Primero busque un paquete válido", Toast.LENGTH_SHORT).show();
             } else {
-                double lat = latitud;
-                double lng = longitud;
-                if (lat == 0 && lng == 0) {
-                    lat = 4.7110;
-                    lng = -74.0721;
-                    Toast.makeText(this, "No hay coordenadas registradas, mostrando Bogotá", Toast.LENGTH_SHORT).show();
-                }
-                // Abrir Google Maps con la ubicación
-                String uri = "geo:" + lat + "," + lng + "?q=" + lat + "," + lng + "(Paquete " + radicadoEncontrado + ")";
-                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
-                intent.setPackage("com.google.android.apps.maps");
-                try {
-                    startActivity(intent);
-                } catch (Exception e) {
-                    // Si falla, abrir en navegador
-                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
-                    startActivity(browserIntent);
-                }
+                Intent intent = new Intent(this, MapaActivity.class);
+                intent.putExtra("radicado", radicadoEncontrado);
+                intent.putExtra("latitud", latitud);
+                intent.putExtra("longitud", longitud);
+                startActivity(intent);
+            }
+        });
+
+        btnReportarUbicacion.setOnClickListener(v -> {
+            if (radicadoEncontrado.isEmpty()) {
+                Toast.makeText(this, "Busque un paquete antes de reportar ubicación", Toast.LENGTH_SHORT).show();
+            } else {
+                solicitarYGuardarUbicacion();
             }
         });
     }
@@ -150,6 +161,54 @@ public class RastrearActivity extends AppCompatActivity {
         db.close();
     }
 
+    private void solicitarYGuardarUbicacion() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQ_LOCATION);
+            return;
+        }
+
+        CurrentLocationRequest req = new CurrentLocationRequest.Builder()
+                .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
+                .build();
+
+        fusedClient.getCurrentLocation(req, null).addOnSuccessListener(location -> {
+            if (location == null) {
+                Toast.makeText(this, "No se pudo obtener ubicación actual", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            latitud = location.getLatitude();
+            longitud = location.getLongitude();
+
+            DBHelper helper = new DBHelper(this);
+            SQLiteDatabase db = helper.getWritableDatabase();
+
+            // Actualizar ubicación más reciente del paquete
+            ContentValues cv = new ContentValues();
+            cv.put("latitud", latitud);
+            cv.put("longitudGeo", longitud);
+            db.update(DBHelper.TABLE_PAQUETES, cv, "radicado = ?", new String[]{radicadoEncontrado});
+
+            // Registrar punto en historial de tracking
+            ContentValues punto = new ContentValues();
+            punto.put("radicado", radicadoEncontrado);
+            punto.put("latitud", latitud);
+            punto.put("longitud", longitud);
+            punto.put("timestamp", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date()));
+            db.insert("tracking_points", null, punto);
+
+            db.close();
+
+            Toast.makeText(this, "Ubicación reportada para " + radicadoEncontrado, Toast.LENGTH_SHORT).show();
+
+            if (!txtResultado.getText().toString().contains("Último punto")) {
+                txtResultado.append("\n\nÚltimo punto: " + latitud + ", " + longitud);
+            } else {
+                txtResultado.setText(txtResultado.getText().toString().replaceAll("Último punto: .+", "Último punto: " + latitud + ", " + longitud));
+            }
+        });
+    }
+
 
     private void crearCanalNotificaciones() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -162,6 +221,18 @@ public class RastrearActivity extends AppCompatActivity {
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
             if (notificationManager != null) {
                 notificationManager.createNotificationChannel(channel);
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQ_LOCATION) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                solicitarYGuardarUbicacion();
+            } else {
+                Toast.makeText(this, "Permiso de ubicación denegado", Toast.LENGTH_SHORT).show();
             }
         }
     }
